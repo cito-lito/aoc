@@ -10,17 +10,21 @@ fn resolve(text: &str) -> u32 {
     let bag = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
     let mut ids: u32 = 0;
     for (i, line) in text.lines().enumerate() {
-        let game = get_game_count(line);
-        println!("iter: {}", i);
-        println!("Line: {}", line);
-        println!("Game: {:?}", game);
+        let sets = line.split(';');
+        let mut valid_set = true;
 
-        let is_game = bag.iter().all(|(&color, &max_count)| {
-            let count_in_game = game.get(color).expect("No color");
-            *count_in_game <= max_count
-        });
-        println!("Is game: {}", is_game);
-        if is_game {
+        for set in sets {
+            let game = get_game_count(set);
+            let is_game = !bag
+                .iter()
+                .all(|(&key, &val1)| game.get(key).map_or(true, |&val2| val2 <= val1));
+            if is_game {
+                valid_set = false;
+                break;
+            }
+        }
+
+        if valid_set {
             ids += i as u32 + 1;
         }
     }
